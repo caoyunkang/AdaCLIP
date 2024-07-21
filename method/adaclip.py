@@ -230,6 +230,7 @@ class TextEmbebddingLayer(nn.Module):
         return text_features
 
 
+# Note: the implementation of HSF is slightly different to the reported one, since we found that the upgraded one is more stable.
 class HybridSemanticFusion(nn.Module):
     def __init__(self, k_clusters):
         super(HybridSemanticFusion, self).__init__()
