@@ -151,8 +151,9 @@ To run the demo application, use the following command:
 python app.py
 ```
 
-Or please visit our [Online Demo](https://huggingface.co/spaces/Caoyunkang/AdaCLIP) for a quick start. 
-The aforementioned three pre-trained weights are offered there. Feel free to test them on your own data!~
+Or visit our [Online Demo](https://huggingface.co/spaces/Caoyunkang/AdaCLIP) for a quick start. The three pre-trained weights mentioned are available there. Feel free to test them with your own data!
+
+Please note that we currently do not have a GPU environment for our Hugging Face Space, so inference for a single image may take approximately 50 seconds.
 
 ![Demo](./asset/Fig_app.png)
 
