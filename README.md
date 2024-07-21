@@ -151,6 +151,9 @@ To run the demo application, use the following command:
 python app.py
 ```
 
+Or please visit our [Online Demo](https://huggingface.co/spaces/Caoyunkang/AdaCLIP) for a quick start. 
+The aforementioned three pre-trained weights are offered there. Feel free to test them on your own data!~
+
 ![Demo](./asset/Fig_app.png)
 
 ## 💘 Acknowledgements
