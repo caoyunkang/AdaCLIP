@@ -54,13 +54,13 @@ Note: some links are still in processing...
 
 | Dataset | Google Drive | Baidu Drive | Task
 |------------|------------------|------------------| ------------------|
-| MVTec AD    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
-| VisA    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
-| MPDD    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization | 
-| BTAD    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
-| KSDD    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
-| DAGM    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
-| DTD-Synthetic    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| MVTec AD    | [Google Drive](https://drive.google.com/file/d/12IukAqxOj497J4F0Mel-FvaONM030qwP/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| VisA    | [Google Drive](https://drive.google.com/file/d/1U0MZVro5yGgaHNQ8kWb3U1a0Qlz4HiHI/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| MPDD    | [Google Drive](https://drive.google.com/file/d/1cLkZs8pN8onQzfyNskeU_836JLjrtJz1/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization | 
+| BTAD    | [Google Drive](https://drive.google.com/file/d/19Kd8jJLxZExwiTc9__6_r_jPqkmTXt4h/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| KSDD    | [Google Drive](https://drive.google.com/file/d/13UidsM1taqEAVV_JJTBiCV1D3KUBpmpj/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| DAGM    | [Google Drive](https://drive.google.com/file/d/1f4sm8hpWQRzZMpvM-j7Q3xPG2vtdwvTy/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
+| DTD-Synthetic    | [Google Drive](https://drive.google.com/file/d/1em51XXz5_aBNRJlJxxv3-Ed1dO9H3QgS/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection & Localization |
 
 
 
@@ -68,13 +68,13 @@ Note: some links are still in processing...
 #### Medical Visual Anomaly Detection Datasets
 | Dataset | Google Drive | Baidu Drive | Task
 |------------|------------------|------------------|  ------------------|
-| HeadCT    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection |
-| BrainMRI    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection |
-| Br35H    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Detection |
-| ISIC    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Localization |
-| ColonDB    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Localization |
-| ClinicDB    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Localization |
-| TN3K    | [Google Drive](链接) | [Baidu Drive](链接) | Anomaly Localization |
+| HeadCT    | [Google Drive](https://drive.google.com/file/d/1ore0yCV31oLwwC--YUuTQfij-f2V32O2/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection |
+| BrainMRI    | [Google Drive](https://drive.google.com/file/d/1JLYyzcPG3ULY2J_aw1SY9esNujYm9GKd/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection |
+| Br35H    | [Google Drive](https://drive.google.com/file/d/1qaZ6VJDRk3Ix3oVp3NpFyTsqXLJ_JjQy/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Detection |
+| ISIC    | [Google Drive](https://drive.google.com/file/d/1atZwmnFsz7mCsHWBZ8pkL_-Eul9bKFEx/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Localization |
+| ColonDB    | [Google Drive](https://drive.google.com/file/d/1tjZ0o5dgzka3wf_p4ErSRJ9fcC-RJK8R/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Localization |
+| ClinicDB    | [Google Drive](https://drive.google.com/file/d/1ciqZwMs1smSGDlwQ6tsr6YzylrqQBn9n/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Localization |
+| TN3K    | [Google Drive](https://drive.google.com/file/d/1LuKEMhrUGwFBlGCaej46WoooH89V3O8_/view?usp=drive_link) | [Baidu Drive](链接) | Anomaly Localization |
 
 #### Custom Datasets
 To use your custom dataset, follow these steps:
