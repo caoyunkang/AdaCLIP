@@ -97,13 +97,13 @@ Please download the pre-trained weights in `./weights`.
 
 ### Train
 
-By default, we use MVTec AD & ClinicDB for training and VisA for validation:
+By default, we use MVTec AD & Colondb for training and VisA for validation:
 ```shell
 CUDA_VISIBLE_DEVICES=0 python train.py --save_fig True --training_data mvtec colondb --testing_data visa
 ```
 
 
-Alternatively, for evaluation on MVTec AD & ClinicDB, we use VisA & ColonDB for training and MVTec AD for validation.
+Alternatively, for evaluation on MVTec AD & Colondb, we use VisA & ClinicDB for training and MVTec AD for validation.
 ```shell
 CUDA_VISIBLE_DEVICES=0 python train.py --save_fig True --training_data visa clinicdb --testing_data mvtec
 ```
