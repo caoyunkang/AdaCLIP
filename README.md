@@ -17,6 +17,10 @@ The combination of static and dynamic prompts is referred to as hybrid prompts, 
 Extensive experiments conducted across 14 real-world anomaly detection datasets from industrial and medical domains indicate that AdaCLIP outperforms other ZSAD methods and can generalize better to different categories and even domains. 
 Finally, our analysis highlights the importance of diverse auxiliary data and optimized prompts for enhanced generalization capacity.
 
+## Corrections
+- The description to the utilized training set in our paper is not accurate. By default, we utilize MVTec AD & ColonDB for training,
+and VisA & ClinicDB are utilized for evaluations on MVTec AD & ColonDB. 
+
 ## Overview of AdaCLIP
 ![overview](asset/framework.png)
 
