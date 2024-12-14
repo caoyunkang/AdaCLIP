@@ -174,8 +174,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    train(args)
-
     if args.batch_size != 1:
         raise NotImplementedError(
             "Currently, only batch size of 1 is supported due to unresolved bugs. Please set --batch_size to 1.")
