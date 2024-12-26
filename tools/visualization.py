@@ -1,3 +1,5 @@
+import copy
+
 import cv2
 import matplotlib
 
@@ -21,32 +23,46 @@ def plot_sample_cv2(names, imgs, scores_: dict, gts, save_folder=None):
     # get subplot number
     total_number = len(imgs)
 
-    scores = scores_.copy()
+    scores = copy.deepcopy(scores_)
     # normarlisze anomalies
     for k, v in scores.items():
         max_value = np.max(v)
         min_value = np.min(v)
 
-        scores[k] = (scores[k] - min_value) / max_value * 255
-        scores[k] = scores[k].astype(np.uint8)
+        # scores[k] = (scores[k] - min_value) / max_value * 255
+        # scores[k] = scores[k].astype(np.uint8)
+
+        # scale_factor = 255 / (max_value - min_value)
+        # scores[k] = ((scores[k] - min_value) * scale_factor).round().clip(0, 255).astype(np.uint8)
+
+        for i in range(len(scores[k])):
+            cur_max_value = np.percentile(scores[k][i], 98)
+            cur_min_value = np.percentile(scores[k][i], 2)
+
+            scale_factor = 255 / (cur_max_value - cur_min_value)
+            scores[k][i] = ((scores[k][i] - cur_min_value) * scale_factor).round().clip(0, 255).astype(np.uint8)
+
     # draw gts
     mask_imgs = []
     for idx in range(total_number):
         gts_ = gts[idx]
         mask_imgs_ = imgs[idx].copy()
-        mask_imgs_[gts_ > 0.5] = (0, 0, 255)
+        mask_imgs_[gts_ > 0.5] = (255, 255, 255)
         mask_imgs.append(mask_imgs_)
 
     # save imgs
     for idx in range(total_number):
 
-        cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_ori.jpg'), imgs[idx])
-        cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_gt.jpg'), mask_imgs[idx])
+        cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_img.png'), imgs[idx])
+
+        mask_img = cv2.addWeighted(mask_imgs[idx], 0.5, imgs[idx], 0.5, 0)
+        cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_mask.png'), mask_img)
+        # cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_mask.jpg'), mask_img)
 
         for key in scores:
             heat_map = cv2.applyColorMap(scores[key][idx], cv2.COLORMAP_JET)
             visz_map = cv2.addWeighted(heat_map, 0.5, imgs[idx], 0.5, 0)
-            cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_{key}.jpg'),
+            cv2.imwrite(os.path.join(save_folder, f'{names[idx]}_{key}.png'),
                         visz_map)
 
 
