@@ -138,6 +138,15 @@ CUDA_VISIBLE_DEVICES=0 python test.py --testing_model image --ckt_path weights/p
  --image_path asset/img.png --class_name candle --save_name test.png
 ```
 
+To evaluate with external JSON text prompts instead of the default AdaCLIP text prompts:
+```shell
+CUDA_VISIBLE_DEVICES=0 python test.py \
+  --testing_data mvtec \
+  --ckt_path weights/pretrained_visa.pth \
+  --prompt_source json \
+  --prompt_json_path ./prompts/llava_normal_aware_prompts_mvtec_4shot.json
+```
+
 ## Main Results
 
 Due to differences in versions utilized, the reported performance may vary slightly compared to the detection performance 

@@ -12,7 +12,7 @@ from scipy.ndimage import gaussian_filter
 import cv2
 
 # Importing from local modules
-from tools import write2csv, setup_seed, Logger
+from tools import REPO_ROOT, resolve_arg_paths, write2csv, setup_seed, Logger
 from dataset import get_data, dataset_dict
 from method import AdaCLIP_Trainer
 from PIL import Image
@@ -31,14 +31,15 @@ def train(args):
     save_fig = args.save_fig
 
     # Logger
-    logger = Logger('log.txt')
+    os.makedirs(args.save_path, exist_ok=True)
+    logger = Logger(os.path.join(args.save_path, 'test.log'))
 
     # Print basic information
     for key, value in sorted(vars(args).items()):
         logger.info(f'{key} = {value}')
 
 
-    config_path = os.path.join('./model_configs', f'{args.model}.json')
+    config_path = REPO_ROOT / 'model_configs' / f'{args.model}.json'
 
     # Prepare model
     with open(config_path, 'r') as f:
@@ -62,7 +63,15 @@ def train(args):
         prompting_branch=args.prompting_branch,
         prompting_type=args.prompting_type,
         use_hsf=args.use_hsf,
-        k_clusters=args.k_clusters
+        k_clusters=args.k_clusters,
+        prompt_source=args.prompt_source,
+        prompt_json_path=args.prompt_json_path,
+        prompt_fallback=args.prompt_fallback,
+        test_abnormal_prompt_source=args.test_abnormal_prompt_source,
+        test_abnormal_prompt_json_path=args.test_abnormal_prompt_json_path,
+        abnormal_prompt_mode=args.abnormal_prompt_mode,
+        abnormal_prompt_fallback=args.abnormal_prompt_fallback,
+        json_prompt_debug_limit=args.json_prompt_debug_limit,
     ).to(device)
 
     model.load(args.ckt_path)
@@ -76,6 +85,7 @@ def train(args):
         image_root = os.path.join(save_root, 'images')
         csv_path = os.path.join(csv_root, f'{args.testing_data}.csv')
         image_dir = os.path.join(image_root, f'{args.testing_data}')
+        os.makedirs(csv_root, exist_ok=True)
         os.makedirs(image_dir, exist_ok=True)
 
         test_data_cls_names, test_data, test_data_root = get_data(
@@ -119,7 +129,16 @@ def train(args):
         img_input = img_input.to(model.device)
 
         with torch.no_grad():
-            anomaly_map, anomaly_score = model.clip_model(img_input, [args.class_name], aggregation=True)
+            anomaly_map, anomaly_score = model.clip_model(
+                img_input,
+                [args.class_name],
+                aggregation=True,
+                image_path=args.image_path,
+                abnormal_prompt_source=args.test_abnormal_prompt_source,
+                abnormal_prompt_mode=args.abnormal_prompt_mode,
+                abnormal_prompt_fallback=args.abnormal_prompt_fallback,
+                abnormal_prompt_bank=model.test_abnormal_prompt_bank,
+            )
 
         anomaly_map = anomaly_map[0, :, :]
         anomaly_score = anomaly_score[0]
@@ -140,6 +159,26 @@ def train(args):
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
+def validate_abnormal_prompt_args(args):
+    if args.test_abnormal_prompt_source == "json":
+        if not args.test_abnormal_prompt_json_path:
+            raise ValueError("--test_abnormal_prompt_json_path is required when "
+                             "--test_abnormal_prompt_source json")
+        if not os.path.isfile(args.test_abnormal_prompt_json_path):
+            raise FileNotFoundError(
+                f"test abnormal prompt JSON does not exist: {args.test_abnormal_prompt_json_path}"
+            )
+
+
+def resolve_runtime_paths(args):
+    return resolve_arg_paths(args, (
+        "save_path",
+        "ckt_path",
+        "image_path",
+        "prompt_json_path",
+        "test_abnormal_prompt_json_path",
+    ))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("AdaCLIP", add_help=True)
@@ -188,8 +227,32 @@ if __name__ == '__main__':
     parser.add_argument("--use_hsf", type=str2bool, default=True,
                         help="Use HSF for aggregation. If False, original class embedding is used (default: True)")
     parser.add_argument("--k_clusters", type=int, default=20, help="Number of clusters (default: 20)")
+    parser.add_argument("--prompt_source", type=str, default="default", choices=["default", "json"],
+                        help="Text prompt source. 'default' keeps the original AdaCLIP prompts.")
+    parser.add_argument("--prompt_json_path", type=str, default="",
+                        help="Path to JSON prompts used when --prompt_source json")
+    parser.add_argument("--prompt_fallback", type=str, default="default", choices=["default", "error"],
+                        help="Fallback behavior when class prompts are missing from JSON")
+    parser.add_argument("--test_abnormal_prompt_source", type=str, default="default",
+                        choices=["default", "json"],
+                        help="Abnormal prompt source used during evaluation.")
+    parser.add_argument("--test_abnormal_prompt_json_path", type=str, default="",
+                        help="Per-image difference prompt JSON used during evaluation.")
+    parser.add_argument("--abnormal_prompt_mode", type=str, default="replace",
+                        choices=["replace", "append"],
+                        help="Use JSON abnormal prompts alone or append them to default abnormal prompts.")
+    parser.add_argument("--abnormal_prompt_fallback", type=str, default="default",
+                        choices=["default", "error"],
+                        help="Fallback when per-image JSON difference prompts are missing.")
+    parser.add_argument("--json_prompt_debug_limit", type=int, default=5,
+                        help="Number of per-image JSON prompt resolutions to print for debugging.")
 
     args = parser.parse_args()
+    resolve_runtime_paths(args)
+    validate_abnormal_prompt_args(args)
+
+    print(f"[Paths] repo_root: {REPO_ROOT}")
+    print(f"[Paths] save_path: {args.save_path}")
 
     if args.batch_size != 1:
         raise NotImplementedError(

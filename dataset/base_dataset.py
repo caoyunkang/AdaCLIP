@@ -9,6 +9,7 @@ import torch.utils.data as data
 from PIL import Image
 import cv2
 from config import DATA_ROOT
+from .mvtec_layout import build_mvtec_style_meta
 
 
 class DataSolver:
@@ -18,8 +19,12 @@ class DataSolver:
         self.path = os.path.join(root, 'meta.json')
 
     def run(self):
-        with open(self.path, 'r') as f:
-            info = json.load(f)
+        if os.path.isfile(self.path):
+            with open(self.path, 'r') as f:
+                info = json.load(f)
+        else:
+            print(f"[Dataset] meta.json not found; scanning MVTec-style layout: {self.root}")
+            info = build_mvtec_style_meta(self.root, self.clsnames)
 
         info_required = dict(train={}, test={})
         for cls in self.clsnames:

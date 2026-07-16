@@ -6,6 +6,7 @@ from loss import FocalLoss, BinaryDiceLoss
 from tools import visualization, calculate_metric, calculate_average_metric
 from .adaclip import *
 from .custom_clip import create_model_and_transforms
+from .image_prompt_bank import ImagePromptBank
 
 
 class AdaCLIP_Trainer(nn.Module):
@@ -21,6 +22,14 @@ class AdaCLIP_Trainer(nn.Module):
             prompting_depth=3, prompting_length=2,
             prompting_branch='VL', prompting_type='SD',
             use_hsf=True, k_clusters=20,
+            prompt_source='default', prompt_json_path='', prompt_fallback='default',
+            train_abnormal_prompt_source='default',
+            test_abnormal_prompt_source='default',
+            train_abnormal_prompt_json_path='',
+            test_abnormal_prompt_json_path='',
+            abnormal_prompt_mode='replace',
+            abnormal_prompt_fallback='default',
+            json_prompt_debug_limit=5,
     ):
 
         super(AdaCLIP_Trainer, self).__init__()
@@ -30,6 +39,21 @@ class AdaCLIP_Trainer(nn.Module):
         self.image_size = image_size
         self.prompting_branch = prompting_branch
         self.prompting_type = prompting_type
+        self.train_abnormal_prompt_source = train_abnormal_prompt_source
+        self.test_abnormal_prompt_source = test_abnormal_prompt_source
+        self.abnormal_prompt_mode = abnormal_prompt_mode
+        self.abnormal_prompt_fallback = abnormal_prompt_fallback
+        self.json_prompt_debug_limit = json_prompt_debug_limit
+        self.train_abnormal_prompt_bank = self._build_image_prompt_bank(
+            train_abnormal_prompt_source,
+            train_abnormal_prompt_json_path,
+            phase='train',
+        )
+        self.test_abnormal_prompt_bank = self._build_image_prompt_bank(
+            test_abnormal_prompt_source,
+            test_abnormal_prompt_json_path,
+            phase='test',
+        )
 
         self.loss_focal = FocalLoss()
         self.loss_dice = BinaryDiceLoss()
@@ -51,7 +75,10 @@ class AdaCLIP_Trainer(nn.Module):
                                   k_clusters=k_clusters,
                                   output_layers=feat_list,
                                   device=device,
-                                  image_size=image_size).to(device)
+                                  image_size=image_size,
+                                  prompt_source=prompt_source,
+                                  prompt_json_path=prompt_json_path,
+                                  prompt_fallback=prompt_fallback).to(device)
 
         self.transform = transforms.Compose([
             transforms.Resize((image_size, image_size)),
@@ -86,6 +113,18 @@ class AdaCLIP_Trainer(nn.Module):
         # build the optimizer
         self.optimizer = torch.optim.AdamW(self.params_to_update, lr=learning_rate, betas=(0.5, 0.999))
 
+    def _build_image_prompt_bank(self, source, json_path, phase):
+        if source not in ('default', 'json'):
+            raise ValueError(f"{phase}_abnormal_prompt_source must be 'default' or 'json'")
+        if source == 'default':
+            return None
+        return ImagePromptBank(
+            json_path=json_path,
+            fallback=self.abnormal_prompt_fallback,
+            debug_limit=self.json_prompt_debug_limit,
+            phase=phase,
+        )
+
     def save(self, path):
         self.save_dict = {}
         for param, value in self.state_dict().items():
@@ -103,9 +142,19 @@ class AdaCLIP_Trainer(nn.Module):
     def train_one_batch(self, items):
         image = items['img'].to(self.device)
         cls_name = items['cls_name']
+        image_path = items.get('img_path')
 
         # pixel level
-        anomaly_map, anomaly_score = self.clip_model(image, cls_name, aggregation=False)
+        anomaly_map, anomaly_score = self.clip_model(
+            image,
+            cls_name,
+            aggregation=False,
+            image_path=image_path,
+            abnormal_prompt_source=self.train_abnormal_prompt_source,
+            abnormal_prompt_mode=self.abnormal_prompt_mode,
+            abnormal_prompt_fallback=self.abnormal_prompt_fallback,
+            abnormal_prompt_bank=self.train_abnormal_prompt_bank,
+        )
 
         if not isinstance(anomaly_map, list):
             anomaly_map = [anomaly_map]
@@ -177,6 +226,7 @@ class AdaCLIP_Trainer(nn.Module):
 
                 image = items['img'].to(self.device)
                 cls_name = items['cls_name']
+                image_path = items.get('img_path')
                 results['cls_names'].extend(cls_name)
                 gt_mask = items['img_mask']
                 gt_mask[gt_mask > 0.5], gt_mask[gt_mask <= 0.5] = 1, 0
@@ -185,7 +235,16 @@ class AdaCLIP_Trainer(nn.Module):
                     results['imgs_masks'].append(_gt_mask.squeeze(0).numpy())  # px
 
                 # pixel level
-                anomaly_map, anomaly_score = self.clip_model(image, cls_name, aggregation=True)
+                anomaly_map, anomaly_score = self.clip_model(
+                    image,
+                    cls_name,
+                    aggregation=True,
+                    image_path=image_path,
+                    abnormal_prompt_source=self.test_abnormal_prompt_source,
+                    abnormal_prompt_mode=self.abnormal_prompt_mode,
+                    abnormal_prompt_fallback=self.abnormal_prompt_fallback,
+                    abnormal_prompt_bank=self.test_abnormal_prompt_bank,
+                )
 
                 anomaly_map = anomaly_map.cpu().numpy()
                 anomaly_score = anomaly_score.cpu().numpy()
